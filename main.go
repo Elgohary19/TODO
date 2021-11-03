@@ -2,15 +2,20 @@ package main
 
 import (
 	"errors"
-	"github.com/ichtrojan/go-todo/routes"
-	"github.com/ichtrojan/thoth"
-	"github.com/joho/godotenv"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/ichtrojan/go-todo/routes"
+	"github.com/ichtrojan/thoth"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	fmt.Println("Application start ........")
+	fmt.Println("http://localhost:8080")
+
 	logger, _ := thoth.Init("log")
 
 	if err := godotenv.Load(); err != nil {
