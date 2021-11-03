@@ -3,8 +3,6 @@ package routes
 import (
 	"crypto/sha256"
 	"crypto/subtle"
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -22,43 +20,15 @@ func Init() *mux.Router {
 	route := mux.NewRouter()
 	app := new(application)
 
-	route.HandleFunc("/", app.basicAuth(app.protectedHandler))
+	route.HandleFunc("/", app.basicAuth(controllers.Show))
 	route.HandleFunc("/add", controllers.Add).Methods("POST")
 	route.HandleFunc("/delete/{id}", controllers.Delete)
 	route.HandleFunc("/complete/{id}", controllers.Complete)
-	route.HandleFunc("/unprotected", app.unprotectedHandler)
 
 	app.auth.username = "admin"
 	app.auth.password = "password"
 
-	if app.auth.username == "" {
-		log.Fatal("basic auth username must be provided")
-	}
-
-	if app.auth.password == "" {
-		log.Fatal("basic auth password must be provided")
-	}
-
-	// srv := &http.Server{
-	// 	Addr:         ":8080",
-	// 	Handler:      route,
-	// 	IdleTimeout:  time.Minute,
-	// 	ReadTimeout:  10 * time.Second,
-	// 	WriteTimeout: 30 * time.Second,
-	// }
-
-	// log.Printf("starting server on %s", srv.Addr)
-	// err := srv.ListenAndServeTLS("./localhost.pem", "./localhost-key.pem")
-	// log.Fatal(err)
 	return route
-}
-
-func (app *application) protectedHandler(w http.ResponseWriter, r *http.Request) {
-	controllers.Show(w, r)
-}
-
-func (app *application) unprotectedHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "This is the unprotected handler")
 }
 
 func (app *application) basicAuth(next http.HandlerFunc) http.HandlerFunc {
@@ -77,8 +47,6 @@ func (app *application) basicAuth(next http.HandlerFunc) http.HandlerFunc {
 				next.ServeHTTP(w, r)
 				return
 			}
-			route := mux.NewRouter()
-			route.HandleFunc("", controllers.Show)
 		}
 
 		w.Header().Set("WWW-Authenticate", `Basic realm="restricted", charset="UTF-8"`)
